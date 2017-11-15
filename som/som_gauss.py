@@ -16,8 +16,7 @@ data = data[:, np.random.choice([i for i in range(data.shape[1])], data.shape[1]
 #plt.show()
 
 som = SelfOrganizingMap(15, 15, 2)
-#print(som.neurons)
-som.self_organize(data)
-#print(som.neurons)
-plt.scatter(som.neurons[0,:], som.neurons[1,:])
-plt.show()
+
+som.self_organize(data, iters=2000)
+som.plot_energy()
+
