@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 class SelfOrganizingMap:
     def __init__(self, h, w, m):
@@ -23,6 +24,8 @@ class SelfOrganizingMap:
         Args:
             - data: An m by N matrix with data points in the columns.
         """        
+        if iters <= 0:
+            raise ValueError("iters must be positive")
         if data.shape[0] != self.m:
             raise ValueError("Incorrect data dimensions")
 
@@ -69,13 +72,24 @@ class SelfOrganizingMap:
             e = e0 * np.exp(-n/t2)
             self.neurons[:, selected] -= e * neighborhood * (self.neurons[:, selected] - x)
 
+            # The energy is sampled 10 times
             if (n - prev_n) >= n_iters/10:
                 prev_n = n
                 self.energy.append(self._calculate_energy(data))
+        
+        # Append last attained energy and calculate an epochs vector for it
         self.energy.append(self._calculate_energy(data))
         self.energy_times = np.linspace(0, 1, len(self.energy), endpoint=True) * n_iters
         
     def _calculate_energy(self, data):
+        """ Calculates the energy from the data
+        as the average minimum distance to the closest
+        prototype.
+        Args:
+            - data: array, m by N
+        Returns:
+            - float, the average energy
+        """
         average_energy = 0
         for i in range(data.shape[1]):
             x = data[:,i:i+1]
@@ -85,6 +99,9 @@ class SelfOrganizingMap:
         return average_energy/data.shape[1]
 
     def plot_energy(self):
+        """ Plots the history of the SOM energy during
+        the self-organization process, if existent.                
+        """
         if len(self.energy) > 0:
             plt.figure()
             plt.plot(self.energy_times, self.energy, "--bo")
@@ -94,5 +111,21 @@ class SelfOrganizingMap:
             plt.show()
         else:
             print("No energy stored")
+
+    def plot_hitmap(self, data):
+        plt.figure()
+        axis = plt.gca()
+        
+        for i in range(self.h):
+            for j in range(self.w):
+                axis.add_patch(Rectangle((j, i), 1, 1, fill=False))
+        
+        # Adjust visuals and plot
+        plt.title("Hit Map")
+        axis.axis("off")
+        plt.xlim([-0.1,self.w+0.1])
+        plt.ylim([-0.1,self.h+0.1])
+        axis.set_aspect('equal', 'datalim')
+        plt.show()
 
 
