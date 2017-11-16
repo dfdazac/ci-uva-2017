@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, ConnectionPatch
 
 class SelfOrganizingMap:
     def __init__(self, h, w, m):
@@ -137,7 +137,7 @@ class SelfOrganizingMap:
                 axis.add_patch(Rectangle((j, i), 1, 1, fill=False))
                 side = rel_hits[np.ravel_multi_index((i, j), (self.h, self.w))]
                 d = (1 - side)/2
-                axis.add_patch(Rectangle((j+d, i+d), side, side, alpha=0.5))
+                axis.add_patch(Rectangle((j+d, i+d), side, side, alpha=0.4))
         
         # Adjust visuals and plot
         plt.title("Hit Map")
@@ -145,6 +145,39 @@ class SelfOrganizingMap:
         plt.xlim([-0.1,self.w+0.1])
         plt.ylim([-0.1,self.h+0.1])
         axis.set_aspect('equal', 'datalim')
+        plt.show()
+
+    def plot_2dmap(self, data=None):
+        if self.m != 2:
+            raise ValueError("SOM dimensionality is not two")            
+
+        # Plot points first
+        plt.figure()
+        if data is not None:
+            plt.scatter(data[0,:], data[1,:], alpha=0.5, edgecolors="none")
+        plt.scatter(self.neurons[0,:], self.neurons[1,:], s=10, c="k")
+
+        # Add the lines
+        axis = plt.gca()
+        i = 0
+        j = 0
+        for i in range(self.h - 1):
+            for j in range(self.w - 1):
+                neuron_idx = self.neurons[:,np.ravel_multi_index((i, j), (self.h, self.w))]
+                neuron_front = self.neurons[:,np.ravel_multi_index((i, j+1), (self.h, self.w))]
+                neuron_below = self.neurons[:,np.ravel_multi_index((i+1, j), (self.h, self.w))]
+                
+                axis.add_patch(ConnectionPatch(neuron_idx, neuron_front, "data"))
+                axis.add_patch(ConnectionPatch(neuron_idx, neuron_below, "data"))
+            
+            neuron_idx = self.neurons[:,np.ravel_multi_index((i, j+1), (self.h, self.w))]
+            neuron_below = self.neurons[:,np.ravel_multi_index((i+1, j+1), (self.h, self.w))]
+            axis.add_patch(ConnectionPatch(neuron_idx, neuron_below, "data"))
+        for j in range(self.w - 1):
+            neuron_idx = self.neurons[:,np.ravel_multi_index((self.h-1, j), (self.h, self.w))]
+            neuron_front = self.neurons[:,np.ravel_multi_index((self.h-1, j+1), (self.h, self.w))]
+            axis.add_patch(ConnectionPatch(neuron_idx, neuron_front, "data"))
+
         plt.show()
 
 
