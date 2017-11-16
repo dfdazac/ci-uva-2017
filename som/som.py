@@ -113,12 +113,31 @@ class SelfOrganizingMap:
             print("No energy stored")
 
     def plot_hitmap(self, data):
+        """ Plots the hit map of the SOM given the data.
+        The area of the filled squares corresponds to the
+        relative count of hits.
+        Args:
+            - data: array, m by N.
+        """
         plt.figure()
         axis = plt.gca()
+
+        # For each data points count the hits for the BMU
+        rel_hits = np.zeros(self.n_units)
+        for i in range(data.shape[1]):
+            x = data[:,i:i+1]
+            distances = np.linalg.norm(self.neurons - x, axis=0)
+            closest_i = np.argmin(distances)
+            rel_hits[closest_i] += 1
+        rel_hits /= np.max(rel_hits)
         
+        # Add grid and square for each neuron
         for i in range(self.h):
             for j in range(self.w):
                 axis.add_patch(Rectangle((j, i), 1, 1, fill=False))
+                side = rel_hits[np.ravel_multi_index((i, j), (self.h, self.w))]
+                d = (1 - side)/2
+                axis.add_patch(Rectangle((j+d, i+d), side, side, alpha=0.5))
         
         # Adjust visuals and plot
         plt.title("Hit Map")

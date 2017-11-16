@@ -11,5 +11,5 @@ som.self_organize(data.T, iters=1000)
 plt.figure()
 plt.scatter(som.neurons[0,:], som.neurons[1,:])
 
-som.plot_energy()
-som.plot_hitmap(1)
+#som.plot_energy()
+som.plot_hitmap(data.T)
