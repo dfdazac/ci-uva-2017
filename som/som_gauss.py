@@ -12,8 +12,9 @@ n = 200
 data = np.concatenate((np.random.multivariate_normal(mu1, sigma, n).T, np.random.multivariate_normal(mu2, sigma, n).T, np.random.multivariate_normal(mu3, sigma, n).T, np.random.multivariate_normal(mu4, sigma, n).T), axis=1)
 data = data[:, np.random.choice([i for i in range(data.shape[1])], data.shape[1],replace=False)]
 
-som = SelfOrganizingMap(10, 10, 2)
+som = SelfOrganizingMap(15, 15, 2)
 som.self_organize(data, iters=5000)
-som.plot_energy()
-som.plot_hitmap(data)
-som.plot_2dmap(data)
+#som.plot_energy()
+#som.plot_hitmap(data)
+#som.plot_2dmap(data)
+som.plot_umatrix()

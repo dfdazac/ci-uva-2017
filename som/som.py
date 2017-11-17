@@ -37,7 +37,7 @@ class SelfOrganizingMap:
         max_data = np.max(data, axis=1)[:, np.newaxis]
         self.neurons[...] = np.random.random((self.m, self.n_units))*(max_data - min_data) + min_data
 
-        self.energy = []        
+        self.energy = []
         
         # Algorithm constants
         r0 = self.map_radius 
@@ -148,6 +148,13 @@ class SelfOrganizingMap:
         plt.show()
 
     def plot_2dmap(self, data=None):
+        """ Plots the distribution of the map in two dimensions,
+        including the connections for neighbouring neurons.
+        Only available if the dimensionality of the map is 2.
+        Args:
+            - data: (optional) an m by N array. If included, the
+                    map is plotted together with the provided data.
+        """
         if self.m != 2:
             raise ValueError("SOM dimensionality is not two")            
 
@@ -163,6 +170,7 @@ class SelfOrganizingMap:
         j = 0
         for i in range(self.h - 1):
             for j in range(self.w - 1):
+                # Connect to neurons in front of and below the neuron
                 neuron_idx = self.neurons[:,np.ravel_multi_index((i, j), (self.h, self.w))]
                 neuron_front = self.neurons[:,np.ravel_multi_index((i, j+1), (self.h, self.w))]
                 neuron_below = self.neurons[:,np.ravel_multi_index((i+1, j), (self.h, self.w))]
@@ -170,14 +178,59 @@ class SelfOrganizingMap:
                 axis.add_patch(ConnectionPatch(neuron_idx, neuron_front, "data"))
                 axis.add_patch(ConnectionPatch(neuron_idx, neuron_below, "data"))
             
+            # For the last column, connect to neuron below
             neuron_idx = self.neurons[:,np.ravel_multi_index((i, j+1), (self.h, self.w))]
             neuron_below = self.neurons[:,np.ravel_multi_index((i+1, j+1), (self.h, self.w))]
             axis.add_patch(ConnectionPatch(neuron_idx, neuron_below, "data"))
         for j in range(self.w - 1):
+            # For the last row, connect to neurons in front of the neuron
             neuron_idx = self.neurons[:,np.ravel_multi_index((self.h-1, j), (self.h, self.w))]
             neuron_front = self.neurons[:,np.ravel_multi_index((self.h-1, j+1), (self.h, self.w))]
             axis.add_patch(ConnectionPatch(neuron_idx, neuron_front, "data"))
 
         plt.show()
+
+
+    def plot_umatrix(self):
+        """ Plots a matrix with the differences among neighboring neurons.
+        Based on A. Ultsch, "Self-Organizing Neural Networks for Visualisation and Classification"
+        """
+        umatrix = np.zeros((self.h*2 - 1, self.w*2 - 1))
+        for i in range(umatrix.shape[0]):
+            # For even rows, find distance between left and right neurons
+            if i % 2 == 0:
+                for j in range(1, umatrix.shape[1], 2):
+                    back_i = np.ravel_multi_index((i//2, j//2), (self.h, self.w))
+                    front_i = np.ravel_multi_index((i//2, (j+1)//2), (self.h, self.w))
+                    umatrix[i, j] = np.linalg.norm(self.neurons[:, back_i] - self.neurons[:, front_i])
+            # For odd rows...
+            else:
+                for j in range(umatrix.shape[1]):
+                    # For even columns, find distance between top and bottom neurons
+                    if j % 2 == 0:
+                        above_i = np.ravel_multi_index(((i-1)//2, j//2), (self.h, self.w))
+                        below_i = np.ravel_multi_index(((i+1)//2, j//2), (self.h, self.w))
+                        umatrix[i, j] = np.linalg.norm(self.neurons[:, above_i] - self.neurons[:, below_i])
+                    # For odd columns, find the midpoint between the distances of neurons in the diagonal
+                    else:
+                        ne_i = np.ravel_multi_index(((i-1)//2, (j+1)//2), (self.h, self.w))
+                        nw_i = np.ravel_multi_index(((i-1)//2, (j-1)//2), (self.h, self.w))
+                        se_i = np.ravel_multi_index(((i+1)//2, (j+1)//2), (self.h, self.w))
+                        sw_i = np.ravel_multi_index(((i+1)//2, (j-1)//2), (self.h, self.w))
+
+                        dist1 = np.linalg.norm(self.neurons[:, sw_i] - self.neurons[:, ne_i])
+                        dist2 = np.linalg.norm(self.neurons[:, se_i] - self.neurons[:, nw_i])
+
+                        umatrix[i, j] = 0.5 * (dist1 + dist2)
+        
+        plt.figure()
+        plt.imshow(umatrix, cmap="bone")
+        plt.title("U-matrix")
+        axis = plt.gca()
+        axis.axis("off")
+        axis.set_aspect('equal', 'datalim')
+        plt.show()
+
+
 
 
