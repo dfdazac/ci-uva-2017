@@ -8,7 +8,8 @@ som = SelfOrganizingMap(20, 20, 2)
 
 som.self_organize(data.T, iters=8000)
 
-som.plot_energy()
-som.plot_hitmap(data.T)
-som.plot_2dmap(data.T)
-som.plot_umatrix()
+#som.plot_energy()
+#som.plot_hitmap(data.T)
+#som.plot_2dmap(data.T)
+#som.plot_umatrix()
+som.plot_dendrogram()

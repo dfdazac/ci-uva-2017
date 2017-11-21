@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, ConnectionPatch
+from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import cophenet
+from scipy.spatial.distance import pdist
 
 class SelfOrganizingMap:
     def __init__(self, h, w, m):
@@ -52,8 +55,13 @@ class SelfOrganizingMap:
     def _adapt(self, data, n_iters, r0, t1, t2, e0):
         N = data.shape[1]
         prev_n = 0
-
+        percents = [25, 50, 75, 90]
         for n in range(n_iters):
+            done = int(100 * n/n_iters)
+            
+            if done in percents:
+                print(str(done) + "% completed.")
+                percents = percents[1:]
             # Sample data point
             i = np.random.randint(0, N)
             x = data[:,i:i+1]
@@ -229,6 +237,14 @@ class SelfOrganizingMap:
         axis = plt.gca()
         axis.axis("off")
         axis.set_aspect('equal', 'datalim')
+        plt.show()
+
+    def plot_dendrogram(self):
+        # Get linkage matrix
+        Z = linkage(self.neurons.T, "ward")
+        c, coph_dists = cophenet(Z, pdist(self.neurons.T))        
+        dendrogram(Z)
+        print("Plotted dendrogram with cophenetic distance of {:.2f}".format(c))
         plt.show()
 
 
