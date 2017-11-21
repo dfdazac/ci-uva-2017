@@ -1,7 +1,7 @@
 from numpy import loadtxt
 from som import SelfOrganizingMap
 
-all_data = loadtxt("alpine-1.csv", delimiter=",", skiprows=1)
+all_data = loadtxt("../data/alpine-1.csv", delimiter=",", skiprows=1)
 
 # The sensor data starts at column 5
 data = all_data[:, 5:].T

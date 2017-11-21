@@ -1,10 +1,10 @@
-1- Nov 15 2017
+Nov 15 2017
+
 I have implemented a basic SOM [1,2] that performs the adaptive process. Now I'm faced with the question of how to determine convergence of the algorithm and how to visualize the obtained SOM. From an initial scan of a couple of online resources [3,4,5] I've got some ideas, namely using something called an "energy function" to evaluate the convergence, and using a relative frequency plot, distance between prototypes, dendograms and algorithms for finding clusters in the data. Now I want to find references to works describing these techniques. The relative frequency plot is actually intuitive so I can just go ahead and implement it. For the other techniques here's what I've found so far:
 
 [6] Describes energy functions to evaluate convergence.
 [7] Describes using gray levels that depict average distance between prototypes. Also points to resources on that.
 [8] Proposes clustering on the SOM using dendrograms and K-means.
-
 
 References
 [1] T. Kohonen, "Self-Organized Formation of Topologically Correct Feature Maps", 1982.
