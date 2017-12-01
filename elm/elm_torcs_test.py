@@ -3,16 +3,21 @@ from elm import ExtremeLearningMachine
 import matplotlib.pyplot as plt
 import numpy as np
 
-elm = pickle.load(open("elm_driver.p", "rb"))
+def test(inputs, targets):
+    elm = pickle.load(open("elm_driver.p", "rb"))    
+    
+    Y = elm.predict(inputs.T)
 
-data = np.loadtxt("../data/aalborg.csv", skiprows=1, delimiter=",").T
+    plt.plot(targets, label="Target")
+    plt.plot(Y.T, label="Prediction")
+    plt.legend()
+    plt.show()
 
-T = data[:3, :]
-X = data[3:, :]
-Y = elm.predict(X)
+def steer_smooth():
+    data = np.loadtxt("../data/new_data.txt")
 
-plt.subplot(2, 1, 1)
-plt.plot(T[2,:].T)
-plt.subplot(2, 1, 2)
-plt.plot(Y[2,:].T)
-plt.show()
+    inputs = data[:, 0:1]
+    targets = data[:, 1:2]
+    test(inputs, targets)
+
+steer_smooth()

@@ -1,13 +1,15 @@
 from numpy import loadtxt
 from som import SelfOrganizingMap
+import pickle
 
-all_data = loadtxt("../data/alpine-1.csv", delimiter=",", skiprows=1)
+print("Loading data...")
+data = loadtxt("../data/edges/total.csv").T
 
-# The sensor data starts at column 5
-data = all_data[:, 5:].T
-
-som = SelfOrganizingMap(30, 40, data.shape[0])
-som.self_organize(data, iters=6000000)
+som = SelfOrganizingMap(5, 5, data.shape[0])
+som.self_organize(data, iters=40000)
 som.plot_energy()
+som.plot_hitmap(data)
 som.plot_umatrix()
 som.plot_dendrogram()
+
+pickle.dump(som, open("som.p", "wb"))

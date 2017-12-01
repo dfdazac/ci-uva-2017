@@ -116,7 +116,7 @@ class SelfOrganizingMap:
             plt.title("Training Energy")
             plt.xlabel("Epochs")
             plt.grid()
-            plt.show()
+            plt.show(block=False)
         else:
             print("No energy stored")
 
@@ -140,7 +140,7 @@ class SelfOrganizingMap:
         rel_hits /= np.max(rel_hits)
         
         # Add grid and square for each neuron
-        for i in range(self.h):
+        for i in range(self.h - 1, -1, -1):
             for j in range(self.w):
                 axis.add_patch(Rectangle((j, i), 1, 1, fill=False))
                 side = rel_hits[np.ravel_multi_index((i, j), (self.h, self.w))]
@@ -153,7 +153,7 @@ class SelfOrganizingMap:
         plt.xlim([-0.1,self.w+0.1])
         plt.ylim([-0.1,self.h+0.1])
         axis.set_aspect('equal', 'datalim')
-        plt.show()
+        plt.show(block=False)
 
     def plot_2dmap(self, data=None):
         """ Plots the distribution of the map in two dimensions,
@@ -196,7 +196,7 @@ class SelfOrganizingMap:
             neuron_front = self.neurons[:,np.ravel_multi_index((self.h-1, j+1), (self.h, self.w))]
             axis.add_patch(ConnectionPatch(neuron_idx, neuron_front, "data"))
 
-        plt.show()
+        plt.show(block=False)
 
 
     def plot_umatrix(self):
@@ -231,21 +231,53 @@ class SelfOrganizingMap:
 
                         umatrix[i, j] = 0.5 * (dist1 + dist2)
         
-        plt.figure()
         plt.imshow(umatrix, cmap="bone")
         plt.title("U-matrix")
         axis = plt.gca()
         axis.axis("off")
         axis.set_aspect('equal', 'datalim')
-        plt.show()
+        plt.show(block=False)
 
     def plot_dendrogram(self):
         # Get linkage matrix
         Z = linkage(self.neurons.T, "ward")
-        c, coph_dists = cophenet(Z, pdist(self.neurons.T))        
+        c, coph_dists = cophenet(Z, pdist(self.neurons.T))
+        plt.figure()        
         dendrogram(Z)
         print("Plotted dendrogram with cophenetic distance of {:.2f}".format(c))
-        plt.show()
+        plt.show(block=False)
+
+    def plot_closer(self, x, figure=None, patch=None):
+        if figure:
+            plt.figure(figure.number)
+        else:
+            plt.figure()
+        axis = plt.gca()
+        #axis.cla()
+
+        distances = np.linalg.norm(self.neurons - x, axis=0)
+        closest_idx = np.argmin(distances)
+        close_i, close_j = np.unravel_index(closest_idx, (self.h, self.w))
+
+        if not patch:
+            patch = axis.add_patch(Rectangle((close_j, self.h - close_i - 1), 1, 1, alpha=0.4, color="r"))
+                    
+            # Add grid and square for each neuron
+            for i in range(self.h - 1, -1, -1):
+                for j in range(self.w):
+                    axis.add_patch(Rectangle((j, i), 1, 1, fill=False))                
+            
+            # Adjust visuals and plot
+            plt.title("Hit Map")
+            axis.axis("off")
+            plt.xlim([-0.1,self.w+0.1])
+            plt.ylim([-0.1,self.h+0.1])
+            axis.set_aspect('equal', 'datalim')
+        else:
+            patch.set_xy((close_j, self.h - close_i - 1))
+        return patch
+
+        #plt.show()
 
 
 
