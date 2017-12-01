@@ -50,44 +50,73 @@ split_idx = int(0.8 * len(inputs))
 X_train = inputs[:split_idx]
 y_train = targets[:split_idx]
 
-X_test = inputs[split_idx:]
-y_test = targets[split_idx:]
+X_valid = inputs[split_idx:]
+y_valid = targets[split_idx:]
 
-# Generate echoes from a reservoir
-print("Generating echoes...")
-n_readout = 500
-my_esn = SimpleESN(n_readout=n_readout, n_components=n_readout,
-                   damping=0.5, weight_scaling=1.0)
-echo_train = my_esn.fit_transform(X_train)
+n_readouts = [200, 500, 1000]
+dampings = [0.5, 0.75, 1.0]
+scalings = [0.8, 0.9, 1.0]
+hiddens = [[100, 200, 250], [400, 500, 700], [700, 1000, 1200]]
 
-# Train a feedforward neural network to learn
-# the control actions given the echoes
-model = SteeringClassifier(n_readout, 100, 7)
-if CUDA:
-    model.cuda()
-loss_function = nn.NLLLoss()
-optimizer = optim.Adam(model.parameters())
+for n_r, n_readout in enumerate(n_readouts):
+    for damping in dampings:
+        for scaling in scalings:
+            for n_hidden in hiddens[n_r]:
+                # Generate echoes from a reservoir
+                print("Readouts: {:d}  Damping: {:.2f}  Scaling: {:.2f}  Hiddens: {:d}".format(
+                    n_readout, damping, scaling, n_hidden))
 
-EPOCHS = 20
-print("Training neural network...")
-for epoch in range(EPOCHS):
-    total_loss = 0
-    for i in range(len(echo_train)):
-        # Forward propagate
-        log_probs = model(get_variable(echo_train[i]))
-        train_loss = loss_function(log_probs, get_variable([y_train[i]], dtype="long"))
-        # Backward propagate
-        model.zero_grad()
-        train_loss.backward()
-        optimizer.step()
-        # Log error
-        total_loss += train_loss.data[0]
-    print("{:d} - {:.2f}".format(epoch+1, total_loss))
+                my_esn = SimpleESN(n_readout=n_readout, n_components=n_readout,
+                                   damping=damping, weight_scaling=scaling)
+                echo_train = my_esn.fit_transform(X_train)
+                valid_train = my_esn.transform(X_valid)
 
-# Evaluate accuracy
-correct = 0
-for n, data in enumerate(echo_train):
-    v, i = model(autograd.Variable(torch.FloatTensor(data))).data.max(1)
-    if i[0] == y_train[n]:
-        correct += 1
-print("Training accuracy: {:.1f}%".format(100 * correct/len(predictions)))
+                # Train a feedforward neural network to learn
+                # the control actions given the echoes
+                model = SteeringClassifier(n_readout, n_hidden, 7)
+                if CUDA:
+                    model.cuda()
+                loss_function = nn.NLLLoss()
+                optimizer = optim.Adam(model.parameters())
+
+                EPOCHS = 20
+                print("{:^20s}".format("Accuracy (%)"))
+                print("{:^10s}{:^10s}".format("Training", "Validation"))
+
+                prev_valid_accuracy = 0
+                for epoch in range(EPOCHS):    
+                    train_accuracy = 0
+                    valid_accuracy = 0
+
+                    for i in range(len(echo_train)):
+                        # Forward propagate
+                        log_probs = model(get_variable(echo_train[i]))
+                        train_loss = loss_function(log_probs, get_variable([y_train[i]], dtype="long"))
+                        # Backward propagate
+                        model.zero_grad()
+                        train_loss.backward()
+                        optimizer.step()
+                        
+                        # Accumulate training error
+                        prob, idx = log_probs.data.max(1)
+                        if idx[0] == y_train[i]:
+                            train_accuracy += 1
+
+                    # Training accuracy
+                    train_accuracy /= len(echo_train)
+
+                    # Validation accuracy
+                    for j in range(len(valid_train)):
+                        prob, idx = model(get_variable([valid_train[j]])).data.max(1)
+                        if idx[0] == y_valid[j]:
+                            valid_accuracy += 1
+                    valid_accuracy /= len(valid_train)
+
+                    if valid_accuracy >= prev_valid_accuracy:
+                        prev_valid_accuracy = valid_accuracy
+                    else:
+                        print("Terminating due to decrease in validation accuracy:")
+
+                    print("{:^10.2f}{:^10.2f}".format(100*train_accuracy, 100*valid_accuracy))
+
+
