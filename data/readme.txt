@@ -2,6 +2,8 @@ The following files were provided by the course staff. They consist of the contr
     - aalborg.csv
     - alpine-1.csv
     - f-speedway.csv
+This data was merged into a single file:
+    - all_sensors_all_controls.csv
 
 The data_shuffling.py script takes these three files and merge them into a matrix that is shuffled and divided into training, validation and testing data sets. They are saved as
     - train.csv
