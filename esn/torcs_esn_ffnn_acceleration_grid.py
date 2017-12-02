@@ -20,7 +20,7 @@ CUDA = torch.cuda.is_available()#87.31 93.
 esn = pickle.load(open("reservoir.p", "rb"))
 
 # Load data and preprocess
-data = np.loadtxt("../data/all_sensors_all_controls.csv", delimiter=",", skiprows=1)[:100]
+data = np.loadtxt("../data/all_sensors_all_controls.csv", delimiter=",", skiprows=1)
 accel_labeled = np.zeros(len(data), dtype=int)
 levels = [0, 1]
 delta = 0.1
@@ -45,7 +45,7 @@ y_valid = targets[split_idx:]
 echo_train = esn.transform(X_train)
 valid_train = esn.transform(X_valid)
 
-n_hidden_values = [100, 150, 200, 250]
+n_hidden_values = [200, 250, 300, 400, 500]
 
 for n_hidden in n_hidden_values:
     print("Training with", n_hidden, "hidden units")

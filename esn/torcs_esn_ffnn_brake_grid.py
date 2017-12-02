@@ -45,7 +45,7 @@ y_valid = targets[split_idx:]
 echo_train = esn.transform(X_train)
 valid_train = esn.transform(X_valid)
 
-n_hidden_values = [100, 150, 200, 250]
+n_hidden_values = [200, 250, 300, 400, 500]
 
 for n_hidden in n_hidden_values:
     print("Training with", n_hidden, "hidden units")
