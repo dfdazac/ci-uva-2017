@@ -103,3 +103,4 @@ ENV/
 # Misc
 *.zip
 *.png
+ignore/

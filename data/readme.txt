@@ -10,7 +10,11 @@ The data_shuffling.py script takes these three files and merge them into a matri
     - valid.csv
     - test.csv
 
-Data was recorded comprising the distance from the center of the track and the steering produced by the basic PID steering controller AND the speed determined by the SOM. This data was saved in the center_steering folder and merged into a single file
+Data of the distance from the center of the track and the steering signal given by the default controller, which was then smoothed, was saved to
+    - center_steering_smooth.txt
+
+Data was recorded comprising the distance from the center of the track and the steering produced by the basic PID steering controller AND the speed determined by the SOM. This data was saved in the center_steering folder and merged into a single file:
+    - center_steering.txt
 
 Data of the car in three different positions with respect to the center of the track (left, center, right) was recorded for a single track. This is used to train a self-organizing map. The resulting data files are saved in the edges folder, and all of them were merged into a single file:
     - total.csv
