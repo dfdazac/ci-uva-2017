@@ -40,26 +40,30 @@ if __name__ == '__main__':
     y_test = Y[train_length:train_length+test_length]
 
     # Simple training
-    my_esn = SimpleESN(n_readout=50, n_components=50,
-                       damping=1.0, weight_scaling=0.5)
-    echo_train = my_esn.fit_transform(X_train)
-    regr = Ridge(alpha=0)
+    my_esn = SimpleESN(n_readout=50, n_features=X_train.shape[1],
+        n_components=50, damping=1.0, weight_scaling=0.5)
+    echo_train = my_esn.transform(X_train)
+    regr = Ridge(alpha=0.001)
     regr.fit(echo_train, y_train)
-    foo = regr.predict(my_esn.transform(X_train))
+
+    y_train_pred = regr.predict(echo_train)
+    train_err = mean_squared_error(y_train, y_train_pred)
     
     echo_test = my_esn.transform(X_test)
-    y_true, y_pred = y_test[10:], regr.predict(echo_test)[10:]
-    err = mean_squared_error(y_true, y_pred)
+    y_pred = regr.predict(echo_test)
+    test_err = mean_squared_error(y_test, y_pred)
     
     fp = plt.figure(figsize=(12, 4))
     trainplot = fp.add_subplot(1, 2, 1)
-    trainplot.plot(y_train, 'b')
-    trainplot.plot(foo, 'g')
-    trainplot.set_title('Some training signal')
+    trainplot.plot(y_train, 'b', label="Target")
+    trainplot.plot(y_train_pred, 'g', label="Prediction")
+    plt.legend()
+    trainplot.set_title('Training set (MSE {:.9f})'.format(train_err))
     testplot =  fp.add_subplot(1, 2, 2)
-    testplot.plot(y_true, 'b', label='test signal')
-    testplot.plot(y_pred, 'g', label='prediction')
-    testplot.set_title('Prediction (MSE %0.9f)' % err)
+    testplot.plot(y_test, 'b', label='Target')
+    testplot.plot(y_pred, 'g', label='Prediction')
+    plt.legend()
+    testplot.set_title('Test set (MSE {:.9f})'.format(test_err))
     plt.tight_layout(0.5)
     plt.show()
     

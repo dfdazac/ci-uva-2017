@@ -6,7 +6,7 @@ from ffnn_classifier import FFNNClassifier
 import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 
-esn = pickle.load(open("models/reservoir.p", "rb"))
+esn = pickle.load(open("models/reservoir_v2.p", "rb"))
 
 def evaluate_model(model, targets):
     predictions = np.zeros(len(targets))
@@ -55,8 +55,8 @@ brake_model = pickle.load(open("models/brake_model_v2.p", "rb"))
 steer_model = FFNNClassifier(200, 250, 7)
 steer_model.load_state_dict(torch.load("models/steer_model_v2.pt"))
 
-accel_pred = evaluate_model(accel_model, accel_targets)
-brake_pred = evaluate_model(brake_model, brake_targets)
+#accel_pred = evaluate_model(accel_model, accel_targets)
+#brake_pred = evaluate_model(brake_model, brake_targets)
 steer_pred = evaluate_model(steer_model, steer_targets)
 
 
