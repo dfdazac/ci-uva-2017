@@ -4,6 +4,11 @@ The following files were provided by the course staff. They consist of the contr
     - f-speedway.csv
 This data was merged into a single file:
     - all_sensors_all_controls.csv
+The control actions were discretized and saved to
+    - blackboard_quantized.csv
+Then the edges and speed measurements were normalized to stay in the interval [0, 1].
+with edges factor: 200, speed factor: 300; and saved to
+    - blackboard_quantized_norm.csv
 
 The data_shuffling.py script takes these three files and merge them into a matrix that is shuffled and divided into training, validation and testing data sets. They are saved as
     - train.csv

@@ -4,12 +4,12 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 
-esn = pickle.load(open("models/reservoir.p", "rb"))
+esn = pickle.load(open("models/reservoir_v2.p", "rb"))
 
 def train_random_forest(inputs, targets):
 
     # Split into training and validation sets
-    split_idx = int(len(inputs) * 0.8)    
+    split_idx = int(len(inputs) * 0.85)    
     x_train = inputs[:split_idx]
     y_train = targets[:split_idx]
     x_valid = inputs[split_idx:]

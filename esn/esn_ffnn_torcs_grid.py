@@ -3,6 +3,7 @@ import numpy as np
 from simple_esn import SimpleESN
 import copy
 from ffnn_classifier import train_ffnn_classifier
+import torch
 
 # Load data
 STEER_COL = 2
@@ -59,5 +60,5 @@ for n, n_readout in enumerate(n_readouts):
                     best_ffnn = copy.deepcopy(ffnn)
                     best_esn = copy.deepcopy(esn)
 
-torch.save(best_ffnn.state_dict(), "models/steer_model_v3.pt")
-pickle.dump(best_esn, open("models/reservoir_v3.pt", "wb"))
+torch.save(best_ffnn.state_dict(), "models/steer_model_v4.pt")
+pickle.dump(best_esn, open("models/reservoir_v4.pt", "wb"))

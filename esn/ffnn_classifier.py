@@ -118,31 +118,3 @@ def train_ffnn_classifier(inputs, targets, n_hidden, split_factor=0.8,
     return best_model
 
 
-if __name__ == '__main__':
-    import pickle
-    import numpy as np
-    from simple_esn import SimpleESN
-
-    # Load data
-    STEER_COL = 2
-    filename = "../data/blackboard_quantized.csv"
-    esn = pickle.load(open("models/reservoir_v2.p", "rb"))
-    data = np.loadtxt(filename, delimiter=",", skiprows=1)
-
-    # Separate inputs (float) and targets (int)
-    sensors = data[:, 3:]
-    targets = data[:, STEER_COL].astype(int).tolist()
-    N_samples = sensors.shape[0]
-
-    # Generate echoes from the esn, which will be the input
-    # to the FFNN
-    inputs = np.zeros((N_samples, esn.n_readout))
-    for i in range(N_samples):
-        inputs[i, :] = esn.transform(sensors[i:i+1])
-
-    # Train and save
-    model = train_ffnn_classifier(inputs, targets, 250,
-        use_weights=False, verbose=True)
-    torch.save(model.state_dict(), "models/steer_model_v2.pt")
-
-

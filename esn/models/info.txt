@@ -1,0 +1,25 @@
+accel_model_v1.pt
+brake_model_v1.pt
+steer_model_v1.pt
+reservoir.p
+All neural networks, trained on blackboard_quantized.csv.
+
+accel_model_v2.pt
+brake_model_v2.p
+steer_model_v2.p
+reservoir_v2.p
+Neural network for steering.
+Random forests for brake and acceleration.
+Only steering works.
+Trained on blackboard_quantized.csv.
+
+accel_model_v3.pt
+brake_model_v3.p
+steer_model_v3.p
+reservoir_v3.p
+Neural network for steering.
+Random forests for brake and acceleration.
+Different hyperparameters.
+Only steering works.
+Trained on blackboard_quantized.csv.
+
