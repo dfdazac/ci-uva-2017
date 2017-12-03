@@ -97,6 +97,7 @@ class SimpleESN(BaseEstimator, TransformerMixin):
         self.input_weights_ = None
         self.readout_idx_ = None
         self.weights_ = None
+        self.curr_ = None
 
     def _fit_transform(self, X):
         n_samples, n_features = X.shape
@@ -184,12 +185,13 @@ class SimpleESN(BaseEstimator, TransformerMixin):
         self.components_ = zeros(shape=(1+n_features+self.n_components,
                                         n_samples))
 
-        curr_ = zeros(shape=(self.n_components, 1))
+        if not self.curr_:
+            self.curr_ = zeros(shape=(self.n_components, 1))
         U = concatenate((ones(shape=(n_samples, 1)), X), axis=1)
         for t in range(n_samples):
             u = array(U[t,:], ndmin=2).T
-            curr_ = (1-self.damping)*curr_ + self.damping*tanh(
-                self.input_weights_.dot(u) + self.weights_.dot(curr_))
-            self.components_[:,t] = vstack((u, curr_))[:,0]
+            self.curr_ = (1-self.damping)*self.curr_ + self.damping*tanh(
+                self.input_weights_.dot(u) + self.weights_.dot(self.curr_))
+            self.components_[:,t] = vstack((u, self.curr_))[:,0]
                 
         return self.components_[self.readout_idx_, self.discard_steps:].T

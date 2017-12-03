@@ -95,8 +95,23 @@ def train_esn_ffnn(inputs, targets, n_hidden, esn, split_factor=0.8,
     return best_model
 
 
+if __name__ == '__main__':
+    import pickle
+    import numpy as np
 
+    # Load data
+    STEER_COL = 2
+    filename = "../data/blackboard_quantized.csv"
+    esn = pickle.load(open("models/reservoir.p", "rb"))
+    data = np.loadtxt(filename, delimiter=",", skiprows=1)
 
+    # Separate inputs (float) and targets (int)
+    inputs = data[:, 3:]
+    targets = data[:, STEER_COL].astype(int).tolist()
 
+    # Train and save
+    model = train_esn_ffnn(inputs, targets, 250, esn,
+        use_weights=False, verbose=True)
+    torch.save(model.state_dict(), "models/steer_model_v2.pt")
 
 

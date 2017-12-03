@@ -30,7 +30,7 @@ folds = 4
 train_folds, valid_folds = kfold_indices(len(targets), folds)
 
 # Hyperparameters set
-hiddens = [100, 150, 200, 250, 300]
+hiddens = [160, 170, 180, 190]
 
 best_score = 0
 best_hidden = -1
@@ -40,7 +40,7 @@ for n_hidden in hiddens:
     for k in range(folds):
         # Get training folds
         x_train_fold = inputs[train_folds[k]]
-        y_train_fold = targets[train_folds[k]]
+        y_train_fold = targets[train_folds[k]].tolist()
 
         # Train a new model
         model = train_esn_ffnn(x_train_fold, y_train_fold, n_hidden, esn,
@@ -65,7 +65,7 @@ for n_hidden in hiddens:
         best_score = fold_score
         best_hidden = n_hidden
 
-with open("esn_ffnn_torcs_cv_results.log") as file:
+with open("esn_ffnn_torcs_cv_results.log", "w") as file:
     file.write("Best score obtained with {:d} hidden units.\n".format(best_hidden))
 
 
