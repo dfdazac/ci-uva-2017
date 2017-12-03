@@ -25,7 +25,7 @@ hiddens = [[300, 350], [300, 350, 350]]
 
 best_score = 0
 best_param_str = ""
-param_formatter = "readouts: {:d} damping: {:.2f} scaling: {:.2f} hiddens: {:d} score: {:.9f}"
+param_formatter = "readouts: {:d} damping: {:.2f} hiddens: {:d} score: {:.9f}"
 val_targets = targets[split_idx:]
 val_predictions = np.zeros(len(val_targets))
 
@@ -52,7 +52,7 @@ for n, n_readout in enumerate(n_readouts):
                     correct += 1
             score = correct/len(val_targets)
 
-            param_str = param_formatter.format(n_readout, damping, scaling, n_hidden, score)
+            param_str = param_formatter.format(n_readout, damping, n_hidden, score)
             print(param_str)
 
             if score > best_score:
