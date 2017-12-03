@@ -81,7 +81,7 @@ def train_ffnn_classifier(inputs, targets, n_hidden, split_factor=0.8,
     if CUDA:
         model.cuda()
     loss_function = nn.NLLLoss(class_weights, size_average=False)
-    optimizer = optim.Adam(model.parameters(), lr=0.0009)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
 
     # Start training
     EPOCHS = 20

@@ -19,46 +19,47 @@ split_factor = 0.8
 split_idx = int(len(targets) * split_factor)
 
 # Hyperparameters
-n_readouts = [200, 300, 500]
-dampings = [0.5, 0.75, 1.0]
-scalings = [0.75, 1.0, 1.25]
-hiddens = [[200, 250], [250, 300, 350], [400, 500, 600]]
+n_readouts = [300, 500]
+dampings = [0.75, 0.9, 0.95]
+hiddens = [[300, 350], [300, 350, 350]]
 
 best_score = 0
+best_param_str = ""
+param_formatter = "readouts: {:d} damping: {:.2f} scaling: {:.2f} hiddens: {:d} score: {:.9f}"
 val_targets = targets[split_idx:]
 val_predictions = np.zeros(len(val_targets))
 
 for n, n_readout in enumerate(n_readouts):
     for damping in dampings:
-        for scaling in scalings:
-            for n_hidden in hiddens[n]:
-                esn = SimpleESN(n_features, n_readout, n_readout, damping, scaling)
-                # Generate echoes from the esn, which will be the input
-                # to the FFNN
-                inputs = np.zeros((n_samples, esn.n_readout))
-                for i in range(n_samples):
-                    inputs[i, :] = esn.transform(sensors[i:i+1])
+        for n_hidden in hiddens[n]:
+            esn = SimpleESN(n_features, n_readout, n_readout, damping)
+            # Generate echoes from the esn, which will be the input
+            # to the FFNN
+            inputs = np.zeros((n_samples, esn.n_readout))
+            for i in range(n_samples):
+                inputs[i, :] = esn.transform(sensors[i:i+1])
 
-                # Train
-                ffnn = train_ffnn_classifier(inputs, targets, n_hidden,
-                    split_factor=split_factor, use_weights=False, verbose=True)
+            # Train
+            ffnn = train_ffnn_classifier(inputs, targets, n_hidden,
+                split_factor=split_factor, use_weights=False, verbose=True)
 
-                # Score ffnn
-                val_inputs = inputs[split_idx:]
-                correct = 0
-                for i in range(len(val_inputs)):
-                    prediction = ffnn.predict(val_inputs[i:i+1])
-                    if prediction == val_targets[i]:
-                        correct += 1
-                score = correct/len(targets)
+            # Score ffnn
+            val_inputs = inputs[split_idx:]
+            correct = 0
+            for i in range(len(val_inputs)):
+                prediction = ffnn.predict(val_inputs[i:i+1])
+                if prediction == val_targets[i]:
+                    correct += 1
+            score = correct/len(targets)
 
-                print("readouts: {:d} damping: {:.2f} scaling: {:.2f} hiddens: {:d} score: {:.6f}".format(
-                    n_readout, damping, scaling, n_hidden, score))
+            param_str = param_formatter.format(n_readout, damping, scaling, n_hidden, score)
+            print(param_str)
 
-                if score > best_score:
-                    best_score = score
-                    best_ffnn = copy.deepcopy(ffnn)
-                    best_esn = copy.deepcopy(esn)
+            if score > best_score:
+                best_score = score
+                best_ffnn = copy.deepcopy(ffnn)
+                best_esn = copy.deepcopy(esn)
+                best_param_str = param_str
 
-torch.save(best_ffnn.state_dict(), "models/steer_model_v4.pt")
-pickle.dump(best_esn, open("models/reservoir_v4.pt", "wb"))
+print("Best parameters:")
+print(best_param_str)
