@@ -7,7 +7,7 @@ import torch
 
 # Load data
 STEER_COL = 2
-filename = "../data/blackboard_quantized.csv"
+filename = "../data/blackboard_quantized_norm.csv"
 data = np.loadtxt(filename, delimiter=",", skiprows=1)
 
 # Separate inputs (float) and targets (int)
@@ -50,7 +50,7 @@ for n, n_readout in enumerate(n_readouts):
                 prediction = ffnn.predict(val_inputs[i:i+1])
                 if prediction == val_targets[i]:
                     correct += 1
-            score = correct/len(targets)
+            score = correct/len(val_targets)
 
             param_str = param_formatter.format(n_readout, damping, scaling, n_hidden, score)
             print(param_str)
